@@ -1,3 +1,4 @@
+#!/bin/env ruby
 require 'net/smtp'
 require 'yaml'
 require 'lib/stock_quote'
@@ -40,9 +41,11 @@ symbols.each do |symbol|
   message << symbol_message_tpl%[symbol,val,change]
 end
 
+=begin
 File.open(history_file,'w') do |out|
   YAML.dump(results,out)
 end
+=end
 
 Net::SMTP.start('localhost',25) do |smtp|
   smtp.open_message_stream(email_from, email_to) do |f|
