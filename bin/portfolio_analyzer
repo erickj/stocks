@@ -14,6 +14,7 @@ symbol_message_tpl = <<EOF
 Symbol: %s
 \tPrice: %s
 \tChange: %s
+\t%s Week Range: %s - %s
 
 EOF
 
@@ -38,7 +39,11 @@ symbols.each do |symbol|
   yesterday = results[symbol][-2]
   change = ((val - yesterday.to_f).to_f * (100).to_f).round / 100.to_f if yesterday
 
-  message << symbol_message_tpl%[symbol,val,change]
+  len = results[symbol].length
+  high = StockQuote.series_high(results[symbol])
+  low = StockQuote.series_low(results[symbol])
+
+  message << symbol_message_tpl%[symbol,val,change,(len/5).ceil,low,high]
 end
 
 File.open(history_file,'w') do |out|

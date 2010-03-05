@@ -91,10 +91,50 @@ class StockQuote
   }
 
   class << self
+    def series_high(data_points,max=nil)
+      max ||= 52 * 5 # 52 weeks
+      data_points.last(max).max
+    end
+
+    def series_low(data_points,max=nil)
+      max ||= 52 * 5 # 52 weeks
+      data_points.last(max).min
+    end
+
+    def simple_moving_average(data_points)
+      val = data_points.inject do |sum, n|
+        sum + n
+      end / data_points.length
+
+      StockQuote.round(val)
+    end
+
+    def calculate_series(data_set, time_frame, iterations, &block)
+      if (time_frame + iterations) < data_set.length
+        raise ArgumentError, "time_frame + iterations must be greater than data_set length" 
+      end
+
+      idx = -(time_frame.abs)
+      res = []
+            
+      until res.length >= iterations do
+        res.push(yield(data_set[idx,time_frame]))
+        idx -= 1
+      end
+
+      res.reverse
+    end
+
     def get_quote_for_symbol(symbol)
       uri = URL_TEMPLATE%[symbol, API_ARGS[:'last trade (price only)']]
       val = Net::HTTP.get(URI.parse(uri))
       return val && val.to_f
+    end
+
+    protected
+    def round(v,places=2)
+      mul = (10**places).to_f
+      (v.to_f * mul).round / mul
     end
   end
 end
