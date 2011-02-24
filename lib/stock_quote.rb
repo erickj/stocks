@@ -91,14 +91,17 @@ class StockQuote
   }
 
   class << self
-    def series_high(data_points,max=nil)
-      max ||= 52 * 5 # 52 weeks
-      data_points.last(max).max
+    def abridged_series(data_points, num_weeks)
+      len = [num_weeks * 5, data_points.length].min
+      data_points.last(len)
     end
 
-    def series_low(data_points,max=nil)
-      max ||= 52 * 5 # 52 weeks
-      data_points.last(max).min
+    def series_high(data_points)
+      data_points.max
+    end
+
+    def series_low(data_points)
+      data_points.min
     end
 
     def simple_moving_average(data_points)

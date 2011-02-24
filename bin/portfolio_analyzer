@@ -15,6 +15,7 @@ Symbol: %s
 \tPrice: %s
 \tChange: %s (%s%%)
 \t%s Week Range: %s - %s
+\thttp://www.google.com/finance?q=%s
 
 EOF
 
@@ -25,6 +26,8 @@ message = ""
 
 uri = nil
 val = nil
+
+six_month_lows = []
 
 symbols.each do |symbol|
   symbol.gsub!(/\s/,'')
@@ -43,11 +46,20 @@ symbols.each do |symbol|
     pct_ch = ((change / yesterday.to_f).to_f * 10000.to_f).round / 100.to_f # leave 2 decimal places
   end
 
-  len = results[symbol].length
-  high = StockQuote.series_high(results[symbol])
-  low = StockQuote.series_low(results[symbol])
+  trailing_year = StockQuote.abridged_series(results[symbol], 52)
+  high = StockQuote.series_high(trailing_year)
+  low = StockQuote.series_low(trailing_year)
 
-  message << symbol_message_tpl%[symbol,val,change,pct_ch,(len/5).ceil,low,high]
+  trailing_six = StockQuote.abridged_series(results[symbol], 26)
+  low_six = StockQuote.series_low(trailing_six)
+  is_low_six = true #(val <= low_six)
+  six_month_lows << symbol if is_low_six
+
+  message << symbol_message_tpl%[symbol,val,change,pct_ch,(trailing_year.length/5).ceil,low,high,symbol]
+end
+
+unless six_month_lows.empty?
+  email_subj += " [Six Month Lows: %s]"%six_month_lows.join(',')
 end
 
 File.open(history_file,'w') do |out|
