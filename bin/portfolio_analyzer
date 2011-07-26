@@ -52,7 +52,7 @@ symbols.each do |symbol|
 
   trailing_six = StockQuote.abridged_series(results[symbol], 26)
   low_six = StockQuote.series_low(trailing_six)
-  is_low_six = true #(val <= low_six)
+  is_low_six = (val <= low_six)
   six_month_lows << symbol if is_low_six
 
   message << symbol_message_tpl%[symbol,val,change,pct_ch,(trailing_year.length/5).ceil,low,high,symbol]
