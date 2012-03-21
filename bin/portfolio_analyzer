@@ -43,7 +43,7 @@ symbols.each do |symbol|
 
   if yesterday
     change = ((val - yesterday.to_f).to_f * 100.to_f).round / 100.to_f 
-    pct_ch = ((change / yesterday.to_f).to_f * 10000.to_f).round / 100.to_f # leave 2 decimal places
+    pct_ch = ((change / yesterday.to_f).to_f * 10000.to_f).round / 100.to_f rescue nil # leave 2 decimal places
   end
 
   trailing_year = StockQuote.abridged_series(results[symbol], 52)
